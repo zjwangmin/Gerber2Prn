@@ -29,8 +29,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <list>
 #include <math.h>
 #include <ctype.h>
-//#include <getopt.h>
-//#include <tiffio.h>
+#ifdef __linux__
+#include <getopt.h>
+#include <tiffio.h>
+#endif
 #include <string.h>
 
 #include "polygon.h"

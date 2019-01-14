@@ -345,8 +345,10 @@ getopt_internal(int nargc, char * const *nargv, const char *options,
 	 *                 optreset != 0 for GNU compatibility.
 	 */
 	size_t len;
-	if (posixly_correct == -1 || optreset != 0)
-		/*posixly_correct = */(_dupenv_s(&posixly_correct, &len, "POSIXLY_CORRECT") != NULL);
+	//if (posixly_correct == -1 || optreset != 0) {
+	//	posixly_correct = (getenv("POSIXLY_CORRECT") != NULL); 
+	//	//(_dupenv_s(&posixly_correct, &len, "POSIXLY_CORRECT") != NULL);
+	//}
 	if (*options == '-')
 		flags |= FLAG_ALLARGS;
 	else if (posixly_correct || *options == '+')

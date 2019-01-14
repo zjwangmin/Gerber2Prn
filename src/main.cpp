@@ -33,7 +33,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <math.h>
 #include <limits.h>
 #include <ctype.h>
+#ifdef __linux__
+#include <getopt.h>
+#else
 #include "getopt.h"
+#endif
 #ifdef __linux__
 #include "tiffio.h"
 #endif
@@ -688,6 +692,9 @@ int main (int argc, char **argv)
 	if (optVerbose)
 		printf("  time (sec):                %.2f\n",((double) (clock() - start_clock)) / CLOCKS_PER_SEC );
 
+#ifndef __linux__
+	system("pause");
+#endif
 }
 
 
