@@ -28,9 +28,9 @@ using namespace std;
 #include "polygon.h"
 #include "apertures.h"
 #include "gerber.h"
-//windows
+#ifndef __linux__
 #include "corecrt_math_defines.h"
-
+#endif
 #define LOLIMIT(a,b) if (a < b) a = b;
 #define UPLIMIT(a,b) if (a > b) a = b;
 

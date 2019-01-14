@@ -10,8 +10,9 @@
 using namespace std;
 
 #include "polygon.h"
-//windows
+#ifndef __linux__
 #include "corecrt_math_defines.h"
+#endif
 //#define DEBUG
 
 

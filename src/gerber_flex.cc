@@ -20,9 +20,10 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
-//windows
+#ifndef __linux__
 #include <io.h>
 #include <process.h>
+#endif
 
 /* end standard C headers. */
 
@@ -687,8 +688,9 @@ void numberAfterChar(char * str, char c, double *data, double multiplier=1)
  * down here because we want the user's section 1 to have been scanned first.
  * The user has a chance to override it with an option.
  */
-//windows
-//#include <unistd.h>
+#ifdef __linux__
+#include <unistd.h>
+#endif
 #endif
 
 #ifndef YY_EXTRA_TYPE

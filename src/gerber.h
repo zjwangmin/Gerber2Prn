@@ -35,9 +35,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "polygon.h"
 #include "apertures.h"
-//windows
+#ifndef __linux__
 #include "corecrt_math_defines.h"
-
+#endif
 using namespace::std;
 
 //#define DEBBUG

@@ -34,7 +34,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <limits.h>
 #include <ctype.h>
 #include "getopt.h"
-//#include <tiffio.h>
+#ifdef __linux__
+#include "tiffio.h"
+#endif
 #include <stdarg.h>
 #include <string.h>
 #include "config.h"
@@ -523,7 +525,7 @@ int main (int argc, char **argv)
 
 	// Initialise TIFF with the libtiff library
 	//
-    /*
+#ifdef __linux__
 	TIFF* tif = TIFFOpen(outputFilename.c_str(), "w");
     if	(tif==NULL)
     {
@@ -540,7 +542,7 @@ int main (int argc, char **argv)
     TIFFSetField(tif, TIFFTAG_YRESOLUTION, imageDPI);
     TIFFSetField(tif, TIFFTAG_XRESOLUTION, imageDPI);
     TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, rowsPerStrip);
-	*/
+#endif
 
     imageWidth = 2822;
 	FILE * fp = NULL;
@@ -650,7 +652,9 @@ int main (int argc, char **argv)
 	    		cout << "Rendering "<< percentComplete <<"%  \r"<<flush;
 	    	last = percentComplete;
 		}
-    	//TIFFWriteEncodedStrip(tif, stripCounter, bitmap, bytesPerScanline*lines);
+#ifdef __linux__
+    	TIFFWriteEncodedStrip(tif, stripCounter, bitmap, bytesPerScanline*lines);
+#endif
         //printf("bytesPerScanline:%d lines:%d stripCounter:%d\n", bytesPerScanline, lines, stripCounter);
 		stripCounter++;
         fwrite(bitmap, 1, bytesPerScanline*lines, fp);
@@ -668,7 +672,9 @@ int main (int argc, char **argv)
         }
 
     }
-    //TIFFClose(tif);
+#ifdef __linux__
+    TIFFClose(tif);
+#endif
     fclose(fp);
 
     if (optVerbose)    	cout << "\n";

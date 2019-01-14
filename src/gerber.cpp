@@ -34,9 +34,10 @@ using namespace::std;
 #include "apertures.h"
 #include "gerber.h"
 //#include "gerber_flex.h"
-//windows
+#ifndef __linux__
 #include "stdarg.h"
 #include "corecrt_math_defines.h"
+#endif
 
 void yyerror( Gerber *g, const char * bisonMessage)
 {
