@@ -1,5 +1,6 @@
+#line 2 "src/gerber_flex.cc"
 
-#line 3 "gerber_flex.cc"
+#line 4 "src/gerber_flex.cc"
 
 #define  YY_INT_ALIGNED short int
 
@@ -20,10 +21,11 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
-#ifndef __linux__
-#include <io.h>
-#include <process.h>
-#endif
+ #ifndef __linux__
+ #include <io.h>
+ #include <process.h>
+ #endif
+
 
 /* end standard C headers. */
 
@@ -633,15 +635,14 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "gerber_flex.ll"
+#line 1 "src/gerber_flex.ll"
 /*
  * Flex rules for RS274X files
 /*/
-#line 6 "gerber_flex.ll"
+#line 6 "src/gerber_flex.ll"
 #include <string.h>
 #include "gerber.h"
-#include "gerber_bison.h"
-
+#include "gerber_bison.hh"
 
 #define YY_DECL 	int yylex(Gerber *g)
 
@@ -664,6 +665,7 @@ void numberAfterChar(char * str, char c, double *data, double multiplier=1)
 	if (endptr == str) return;
 	*data = x * multiplier;
 }
+/* %option		header-file="lex.yy.h" */
 /* A condition when extracting aperture macro names
  * The AMblock condition is required so send arithmatic operators  '+', '-', 'X' and '/' to the parser
  * The ADblock condition is required to send modifier delimeter character 'X' to the parser 
@@ -676,7 +678,7 @@ void numberAfterChar(char * str, char c, double *data, double multiplier=1)
  IJ[^*]*						{	g->layerName = yytext[2]; return PARAMETER; 	} 		// Image Justify
  *
  */
-#line 676 "gerber_flex.cc"
+#line 677 "src/gerber_flex.cc"
 
 #define INITIAL 0
 #define ADblock 1
@@ -689,8 +691,9 @@ void numberAfterChar(char * str, char c, double *data, double multiplier=1)
  * The user has a chance to override it with an option.
  */
 #ifdef __linux__
-#include <unistd.h>
-#endif
+ #include <unistd.h>
+ #endif
+
 #endif
 
 #ifndef YY_EXTRA_TYPE
@@ -873,9 +876,9 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 53 "gerber_flex.ll"
+#line 52 "src/gerber_flex.ll"
 
-#line 873 "gerber_flex.cc"
+#line 874 "src/gerber_flex.cc"
 
 	if ( !(yy_init) )
 		{
@@ -960,19 +963,19 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 54 "gerber_flex.ll"
+#line 53 "src/gerber_flex.ll"
 { }										// root out all white spaces, CR
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 55 "gerber_flex.ll"
+#line 54 "src/gerber_flex.ll"
 {	g->currentLine++;					// count the LF and hide from parser
 							}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 57 "gerber_flex.ll"
+#line 56 "src/gerber_flex.ll"
 {				// get floating point number, and extract extranous '.' followed by digits.
 								yylval.YS_float   = atof(yytext);	// Evaluate number but ignore '+' or '-' prefix as it handler in yylex()
 								if (strchr(yytext,'.') != strrchr(yytext,'.') )  g->warning("extraneous '.' in number");
@@ -981,7 +984,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 62 "gerber_flex.ll"
+#line 61 "src/gerber_flex.ll"
 {
 								yylval.YS_int  = atoi(yytext+1)-1;		// $n Variables identifiers
 								if (yylval.YS_int < 0 ) throw string("variable placeholder must be >= 1");
@@ -990,7 +993,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 67 "gerber_flex.ll"
+#line 66 "src/gerber_flex.ll"
 {	yy_push_state(macroname);				// AM paramater syntax
 								BEGIN(AMblock);							// goto <AMblock> condition, exits on next '%' tocken, see below
 								yy_push_state(macroname);
@@ -999,7 +1002,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 72 "gerber_flex.ll"
+#line 71 "src/gerber_flex.ll"
 {	yylval.YS_int = atoi(yytext+3);		// ADD paramater syntax (return D code in value)
 								BEGIN(ADblock);					// goto <ADblock> condition, exits on next '*' tocken, see below
 								yy_push_state(macroname);
@@ -1008,7 +1011,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 77 "gerber_flex.ll"
+#line 76 "src/gerber_flex.ll"
 {								// a string of the Aperture macro name
 								g->temporaryNameMacro = yytext;				// save string
 								yy_pop_state();
@@ -1017,7 +1020,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 82 "gerber_flex.ll"
+#line 81 "src/gerber_flex.ll"
 {  							// FS Format Statement
 								(strchr( yytext,'L') == 0 ) ? g->isOmitLeadingZeroes = false : g->isOmitLeadingZeroes = true;
 								(strchr( yytext,'A') == 0 ) ? g->isCoordsAbsolute = false : g->isCoordsAbsolute = true;
@@ -1031,10 +1034,10 @@ YY_RULE_SETUP
 case 9:
 /* rule 9 can match eol */
 YY_RULE_SETUP
-#line 91 "gerber_flex.ll"
+#line 90 "src/gerber_flex.ll"
 {															// IF, Include file.  Don't return to parser
-								yytext[yyleng-1]=0;			// remove trailing '*'
-								/*yyin = */fopen_s(&yyin, yytext+2,"r");
+								yytext[yyleng-1]=0;			// remove trailing '*'								
+								fopen_s(&yyin, yytext+2,"r");//yyin = fopen_s(yytext+2,"r");
 								if ( ! yyin)	throw string("cannot open include file '")+(yytext+2)+"'";
 								yypush_buffer_state(yy_create_buffer(yyin,YY_BUF_SIZE ));
 							}
@@ -1042,17 +1045,17 @@ YY_RULE_SETUP
 case 10:
 /* rule 10 can match eol */
 YY_RULE_SETUP
-#line 97 "gerber_flex.ll"
+#line 96 "src/gerber_flex.ll"
 {	return CODE; }											// G04 command. Skip remainder of data block.
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 98 "gerber_flex.ll"
+#line 97 "src/gerber_flex.ll"
 {	g->isAxisSwapped = false; return PARAMETER; }			// Axis Swap
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 99 "gerber_flex.ll"
+#line 98 "src/gerber_flex.ll"
 {	g->isAxisSwapped = true;
 								g->warning("Ignoring AS (Axis Swap) parameter. A axis = X data, B axis = Y data.");
 								return PARAMETER;
@@ -1060,7 +1063,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 103 "gerber_flex.ll"
+#line 102 "src/gerber_flex.ll"
 {
 //							cout << "\nlast SR block "<<g->repeat.buffer<<"\n";
 							g->repeat.I = 0;
@@ -1079,47 +1082,47 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 119 "gerber_flex.ll"
+#line 118 "src/gerber_flex.ll"
 {	return PARAMETER; 	}									// ignores empty AD parameter blocks
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 120 "gerber_flex.ll"
+#line 119 "src/gerber_flex.ll"
 {	throw string(yytext)+" KO Knockout parameter not supported";  }	// Reason is becuase the standard does not define KO properly
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 121 "gerber_flex.ll"
+#line 120 "src/gerber_flex.ll"
 { 	g->layerPolarityClear = false;  return PARAMETER; }		// Layer Polarity (draw dark)
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 122 "gerber_flex.ll"
+#line 121 "src/gerber_flex.ll"
 { 	g->layerPolarityClear = true; return PARAMETER; }		// Layer Polarity (draw clear)
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 123 "gerber_flex.ll"
+#line 122 "src/gerber_flex.ll"
 {	g->imagePolarityDark = true; return PARAMETER; }		// Image Polarity set to dark
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 124 "gerber_flex.ll"
+#line 123 "src/gerber_flex.ll"
 {	g->imagePolarityDark = false; return PARAMETER; }		// Image Polarity set to clear
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 125 "gerber_flex.ll"
+#line 124 "src/gerber_flex.ll"
 { 	g->units = Gerber::INCH;  return PARAMETER; }  					// assign dimensions in inches 
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 126 "gerber_flex.ll"
+#line 125 "src/gerber_flex.ll"
 { 	g->units = Gerber::MILLIMETER; return PARAMETER; }				// assign dimensions in millimetres
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 127 "gerber_flex.ll"
+#line 126 "src/gerber_flex.ll"
 {	bool preA = g->isMirrorAaxis;							// specify mirroring of A axis and/or B axis
 								bool preB = g->isMirrorBaxis;
 								if (strstr(yytext, "A0") != 0) g->isMirrorAaxis = false;
@@ -1133,7 +1136,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 137 "gerber_flex.ll"
+#line 136 "src/gerber_flex.ll"
 {   int i = atoi(yytext+1);
 								if (i == 2 ) { 	g->loadDefaults(); return '*'; }		// M2 reset Gerber parameters and continue reading
 								if (i == 3 ) return 0;									// M3 stop reading program
@@ -1143,27 +1146,27 @@ YY_RULE_SETUP
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 143 "gerber_flex.ll"
+#line 142 "src/gerber_flex.ll"
 {  	g->X = g->getCoordinate(yytext+1, 0); return CODE; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 144 "gerber_flex.ll"
+#line 143 "src/gerber_flex.ll"
 {  	g->Y = g->getCoordinate(yytext+1, 1); return CODE; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 145 "gerber_flex.ll"
+#line 144 "src/gerber_flex.ll"
 {  	g->I = g->getCoordinate(yytext+1, 0, true); return CODE; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 146 "gerber_flex.ll"
+#line 145 "src/gerber_flex.ll"
 {  	g->J = g->getCoordinate(yytext+1, 1, true); return CODE; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 147 "gerber_flex.ll"
+#line 146 "src/gerber_flex.ll"
 {														// Image Offset (treat OF and IO synonymously as RS273X Standard doesn't define)
 								numberAfterChar(yytext, 'A', &g->imageOffsetPixels[0], g->dotsPerUnit() );
 								numberAfterChar(yytext, 'B', &g->imageOffsetPixels[1], g->dotsPerUnit() );
@@ -1172,7 +1175,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 152 "gerber_flex.ll"
+#line 151 "src/gerber_flex.ll"
 {														// Scale Factor
 								numberAfterChar(yytext, 'A', &g->scaleFactor[0], g->optScaleX * (g->isMirrorAaxis ? -1 : 1) );
 								numberAfterChar(yytext, 'B', &g->scaleFactor[1], g->optScaleY * (g->isMirrorBaxis ? -1 : 1) );
@@ -1181,58 +1184,58 @@ YY_RULE_SETUP
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 158 "gerber_flex.ll"
+#line 157 "src/gerber_flex.ll"
 {	g->imageRotate = -atof(yytext+2)*M_PI/180.0; return PARAMETER; }	// Image Rotate about origin in degreese
 	YY_BREAK
 case 31:
 /* rule 31 can match eol */
 YY_RULE_SETUP
-#line 159 "gerber_flex.ll"
+#line 158 "src/gerber_flex.ll"
 {	g->layerName = yytext[2]; return PARAMETER; 	}		// Layer Name
 	YY_BREAK
 case 32:
 /* rule 32 can match eol */
 YY_RULE_SETUP
-#line 160 "gerber_flex.ll"
+#line 159 "src/gerber_flex.ll"
 {	g->imageName = yytext[2]; return PARAMETER; 	}		// Image Name
 	YY_BREAK
 case 33:
 /* rule 33 can match eol */
 YY_RULE_SETUP
-#line 161 "gerber_flex.ll"
+#line 160 "src/gerber_flex.ll"
 {	g->imageFilm = yytext[2]; return PARAMETER; 	}		// Image Film string for the operator 
 	YY_BREAK
 case 34:
 /* rule 34 can match eol */
 YY_RULE_SETUP
-#line 162 "gerber_flex.ll"
+#line 161 "src/gerber_flex.ll"
 {	g->warning("ignoring parameter '%c%c'",yytext[0],yytext[1]); return PARAMETER; 	}									// safely ignore all these parameters
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 163 "gerber_flex.ll"
+#line 162 "src/gerber_flex.ll"
 {	BEGIN(0); return yytext[0]; }							// '%' causes to exit AM blocks (note: '*' does not and must not end AM blocks)
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 164 "gerber_flex.ll"
+#line 163 "src/gerber_flex.ll"
 {	BEGIN(0); return yytext[0]; }							// '*' causes to exit AD blocks (possible subsequent AD blocks before '%')
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 165 "gerber_flex.ll"
+#line 164 "src/gerber_flex.ll"
 {	return toupper(yytext[0]); }							// return all other valid single characters
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 166 "gerber_flex.ll"
+#line 165 "src/gerber_flex.ll"
 { }															// ignore all invalid characters
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(ADblock):
 case YY_STATE_EOF(AMblock):
 case YY_STATE_EOF(macroname):
-#line 167 "gerber_flex.ll"
+#line 166 "src/gerber_flex.ll"
 {
 								yypop_buffer_state();
 								if ( !YY_CURRENT_BUFFER )
@@ -1243,10 +1246,10 @@ case YY_STATE_EOF(macroname):
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 175 "gerber_flex.ll"
+#line 174 "src/gerber_flex.ll"
 ECHO;
 	YY_BREAK
-#line 1244 "gerber_flex.cc"
+#line 1245 "src/gerber_flex.cc"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -1817,7 +1820,17 @@ static void yy_load_buffer_state  (void)
         b->yy_bs_column = 0;
     }
 
-        b->yy_is_interactive = file ? (_isatty( _fileno(file) ) > 0) : 0;
+         
+          #ifdef __linux__
+ 
+          b->yy_is_interactive = file ? (isatty( fileno(file) ) > 0) : 0;
+ 
+          #else 
+ 
+          b->yy_is_interactive = file ? (_isatty( _fileno(file) ) > 0) : 0;
+ 
+          #endif
+
     
 	errno = oerrno;
 }
@@ -2283,7 +2296,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 175 "gerber_flex.ll"
+#line 174 "src/gerber_flex.ll"
 
 
 

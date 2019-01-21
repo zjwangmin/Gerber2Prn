@@ -5,7 +5,7 @@
 %{
 #include <string.h>
 #include "gerber.h"
-#include "gerber_bison.h"
+#include "gerber_bison.hh"
 
 #define YY_DECL 	int yylex(Gerber *g)
 
@@ -30,7 +30,7 @@ void numberAfterChar(char * str, char c, double *data, double multiplier=1)
 }
 %}
 
-%option		header-file="lex.yy.h"
+/* %option		header-file="lex.yy.h" */
 %option 	stack
 %option 	noyywrap
 %option 	posix-compat

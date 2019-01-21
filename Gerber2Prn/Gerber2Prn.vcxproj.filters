@@ -24,9 +24,6 @@
     <ClCompile Include="..\src\gerber_bison.cc">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\gerber_flex.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -34,6 +31,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\src\getopt.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\gerber_flex.cc">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,13 +44,13 @@
     <ClInclude Include="..\src\gerber.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\gerber_bison.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\polygon.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\src\getopt.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\gerber_bison.hh">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
