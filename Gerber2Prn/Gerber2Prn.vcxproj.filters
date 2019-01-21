@@ -41,9 +41,6 @@
     <ClInclude Include="..\src\apertures.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\config.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\gerber.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -58,11 +55,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\src\config.h.in" />
     <None Include="..\src\gerber_bison.yy" />
     <None Include="..\src\gerber_flex.ll" />
-    <None Include="..\src\Makefile.am" />
-    <None Include="..\src\Makefile.in" />
-    <None Include="..\src\stamp-h1" />
   </ItemGroup>
 </Project>

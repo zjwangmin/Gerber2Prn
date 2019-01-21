@@ -137,19 +137,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\apertures.h" />
-    <ClInclude Include="..\src\config.h" />
     <ClInclude Include="..\src\gerber.h" />
     <ClInclude Include="..\src\gerber_bison.h" />
     <ClInclude Include="..\src\getopt.h" />
     <ClInclude Include="..\src\polygon.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\src\config.h.in" />
     <None Include="..\src\gerber_bison.yy" />
     <None Include="..\src\gerber_flex.ll" />
-    <None Include="..\src\Makefile.am" />
-    <None Include="..\src\Makefile.in" />
-    <None Include="..\src\stamp-h1" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
