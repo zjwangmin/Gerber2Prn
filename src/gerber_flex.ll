@@ -94,6 +94,7 @@ IF[^*]+\*					{															// IF, Include file.  Don't return to parser
 								yypush_buffer_state(yy_create_buffer( yyin, YY_BUF_SIZE ));
 							}
 G0*4[^*]*					{	return CODE; }											// G04 command. Skip remainder of data block.
+T[A-Z].[^*]*				{	 }														// Attribute TF commond, continue
 ASAXBY						{	g->isAxisSwapped = false; return PARAMETER; }			// Axis Swap
 ASAYBX						{	g->isAxisSwapped = true;
 								g->warning("Ignoring AS (Axis Swap) parameter. A axis = X data, B axis = Y data.");

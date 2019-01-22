@@ -1,27 +1,3 @@
-/*
-File:	 	main.cpp
-Author: 	Adam Seychell
-Description:  main function for gerb2tiff program.
-
-
-	copyright (c), 2001 Adam Seychell.
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
-
 #include <time.h>
 #include <iostream>
 #include <sstream>
@@ -56,10 +32,9 @@ unsigned char nbitsTable[256];
 
 
 const char *help_message= 
-"gerb2tiff  version Copyright (c) 2010 by Adam Seychell\n"
 "Gerber RS-274X file to raster graphics converter \n"
 "\n"
-"Usage: gerb2tiff [OPTIONS] [file1] [file2]...\n"
+"Usage: gerb2prn [OPTIONS] [file1] [file2]...\n"
 "\n"
 "Output control: \n"
 "  -a, --area           Show total dark area of TIFF in square centimeters.\n"
@@ -87,9 +62,7 @@ const char *help_message=
 "Where file1 file2... are gerber files rendered as overlays to a single bitmap.\n"
 "Standard input is read if no gerber files specified and --output is specified.\n"
 "Output bitmap is compressed monochrome TIFF.\n"
-"\n"
-"For latest releases and report bugs visit gerb2tiff home page at:\n"
-" http://members.optusnet.com.au/eseychell\n";
+"\n";
 
 
 void show_interval(const char * msg="")
@@ -491,10 +464,6 @@ int main (int argc, char **argv)
     	rowsPerStrip = imageHeight;
 	unsigned darkPixelsCount = 0;
 
-
-    //
-    // Eye candy
-    //
     if (optVerbose >= 2)
     {
     	printf("polygon count:               %d\n",globalPolygons.size());

@@ -138,7 +138,6 @@
   <ItemGroup>
     <ClInclude Include="..\src\apertures.h" />
     <ClInclude Include="..\src\gerber.h" />
-    <ClInclude Include="..\src\gerber_bison.hh" />
     <ClInclude Include="..\src\getopt.h" />
     <ClInclude Include="..\src\polygon.h" />
   </ItemGroup>
