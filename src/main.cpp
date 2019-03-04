@@ -80,33 +80,6 @@ void error(const string &message)
 }
 
 
-//***************************************************
-// Global variables of plotting parameters
-//**************************************************
-double imageDPI = 2400;
-    double optRotation;
-    bool   optGrowUnitsMillimeters = false;
-    bool   optBoarderUnitsMillimeters = false;
-    double optBoarder = 0;
-    bool  optInvertPolarity = false;
-    bool  optTestOnly = false;
-    int  optVerbose = 0;
-    unsigned rowsPerStrip = 1;//512;
-    bool  optShowArea = false;
-    bool  optQuiet = false;
-    double total_area_cmsq = 0;
-	double optGrowSize = 0;
-	double optScaleX = 1;
-	double optScaleY = 1;
-	unsigned int bytesPerScanline;
-	unsigned int bitmapBytes;
-	unsigned char * bitmap;
-
-//***********************************************************
-
-
-
-
 //**********************************************************
 // Optimised horizontal line drawing from x1,y to x2,y in the monochrome bitmap
 // polarity specifies how pixels are changed.
@@ -206,6 +179,27 @@ void horizontalLine( int x1, int x2, unsigned char *buffer, Polarity_t polarity)
 //---------------------------------------------------------------------------------
 int main (int argc, char **argv)
 {
+	//**************************************************
+	double imageDPI = 600;
+	double optRotation;
+	bool   optGrowUnitsMillimeters = false;
+	bool   optBoarderUnitsMillimeters = false;
+	double optBoarder = 0;
+	bool  optInvertPolarity = false;
+	bool  optTestOnly = false;
+	int  optVerbose = 0;
+	unsigned rowsPerStrip = 1;//512;
+	bool  optShowArea = false;
+	bool  optQuiet = false;
+	double total_area_cmsq = 0;
+	double optGrowSize = 0;
+	double optScaleX = 1;
+	double optScaleY = 1;
+	unsigned int bytesPerScanline;
+	unsigned int bitmapBytes;
+	unsigned char * bitmap;
+	//***********************************************************
+
 	clock_t  start_clock = clock();;
 	string inputfile;
 	string outputFilename;
@@ -363,7 +357,11 @@ int main (int argc, char **argv)
 			inputfile = argv[optind];
 			if ( outputFilename.empty())
 					outputFilename = inputfile + ".tiff";
-			fopen_s(&file, argv[optind], "rb");//file = fopen( argv[optind], "rb");
+#ifndef __linux__
+			fopen_s(&file, argv[optind], "rb");
+#else
+			file = fopen( argv[optind], "rb");
+#endif
 			if (file == NULL)
 					error( string("cannot open input file ")+inputfile );
 			if (!optQuiet)
@@ -452,8 +450,9 @@ int main (int argc, char **argv)
 
 	// use the world coordinate limits <maxx, minx, maxx, minx> to determine the
 	// sized  of the bitmap buffer to allocate for drawing the image
-	// always make image imageWidth multiple of 8
+	// always make image imageWidth multiple of 32. 4 byte align
     unsigned imageWidth 	= unsigned(ceil ( (maxx - minx) + 2*optBoarder + 1 ));
+	imageWidth = (imageWidth + 31) / 32 * 32;
     unsigned imageHeight	= unsigned(ceil ( (maxy - miny) + 2*optBoarder + 1 ));
     int xOffset		= int(floor( optBoarder ));
     int yOffset		= xOffset;
@@ -515,37 +514,43 @@ int main (int argc, char **argv)
     TIFFSetField(tif, TIFFTAG_XRESOLUTION, imageDPI);
     TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, rowsPerStrip);
 #endif
-
-    imageWidth = 2822;
-	FILE * fp = NULL;
-	fopen_s(&fp, "a.prn", "wb");
-    printf("imageHeight2:%d imageWidth:%d imageDPI:%f rowsPerStrip:%d\n", imageHeight, imageWidth, imageDPI, rowsPerStrip);
-    char ripHeader[48];
-    int width = 353;
-    int xdpi=600;
-    int ydpi=600;
-    int colors = 1;
-    int colorbit = 1;
-    memset(ripHeader, 0x00, 48);
-    memset(ripHeader, 0x55, 2);
-    memcpy(ripHeader+4, &xdpi, 4);
-    memcpy(ripHeader+8, &ydpi, 4);
-    memcpy(ripHeader+12, &width, 4);
-    memcpy(ripHeader+16, &imageWidth, 4);
-    memcpy(ripHeader+20, &imageHeight, 4);
-    memcpy(ripHeader+28, &colors, 4);
-    memcpy(ripHeader+32, &colorbit, 4);
-    fwrite(ripHeader, 1, 48, fp);
     
 	//
     // Calculate size and allocate buffer for drawing. The image will be rendered sequential blocks of
     // imageWidth wide by rowsPerStrip high.
     //
-	bytesPerScanline = ((imageWidth+7) >> 3);
+	bytesPerScanline = (imageWidth >> 3);
 	bitmapBytes = bytesPerScanline * rowsPerStrip;
     bitmap = (unsigned char *)malloc( bitmapBytes);
     if ( bitmap == 0 )
     	error("cannot allocate memory");
+
+	FILE * fp = NULL;
+	string prnName = inputfile;
+	prnName  += ".prn";
+
+#ifndef __linux__
+	fopen_s(&fp, prnName.c_str(), "wb");
+#else
+	fp = fopen(prnName.c_str(), "wb");
+#endif
+	printf("imageHeight2:%d imageWidth:%d imageDPI:%f rowsPerStrip:%d\n", imageHeight, imageWidth, imageDPI, rowsPerStrip);
+	char ripHeader[48];
+	int width = bytesPerScanline;
+	int xdpi = int(imageDPI);
+	int ydpi = int(imageDPI);
+	int colors = 1;
+	int colorbit = 1;
+	memset(ripHeader, 0x00, 48);
+	memset(ripHeader, 0x55, 2);
+	memcpy(ripHeader + 4, &xdpi, 4);
+	memcpy(ripHeader + 8, &ydpi, 4);
+	memcpy(ripHeader + 12, &width, 4);
+	memcpy(ripHeader + 16, &imageHeight, 4);
+	memcpy(ripHeader + 20, &imageWidth, 4);
+	memcpy(ripHeader + 28, &colors, 4);
+	memcpy(ripHeader + 32, &colorbit, 4);
+	fwrite(ripHeader, 1, 48, fp);
 
 
     //-----------------------------------------------------------------------

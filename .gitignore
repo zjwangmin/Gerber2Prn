@@ -2,3 +2,7 @@ Debug
 Release
 Gerber2Prn/Debug
 Gerber2Prn/Release
+*.prn
+*.gbr
+Gerber2Prn/*.prn
+Gerber2Prn/*.gbr

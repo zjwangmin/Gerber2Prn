@@ -35,14 +35,14 @@ public:
 	const enum NodeType { VAR, CONSTANT, OPMUL ,OPDIV, OPADD, OPSUB, OPNEG } type;
 
 	union {
-		struct NodeT *node;
+		class NodeT *node;
 		double value;
 		int	varID;
 	} arg1;
 
 	union {
 		std::vector<double> * variables;
-		struct NodeT *node;
+		class NodeT *node;
 	} arg2;
 
 	NodeT(enum NodeType type, const void * parg1=0, const void * parg2=0)
