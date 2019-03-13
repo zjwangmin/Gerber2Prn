@@ -151,6 +151,7 @@ void VertexData::initialise()
 	// Such edges are flagged includeBottom, so in the scan line loop, the edge is not removed from the active list
 	// until the very bottom of the edge is scanned. This prevents vertices and bottom horizontal lines being missed in the plot.
 	list<Edge>::iterator pit = edges.end();
+	if (edges.size() == 0) return;
 	pit--;
 	for ( list<Edge>::iterator it = edges.begin(); it != edges.end(); it++)
 	{

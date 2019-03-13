@@ -6,3 +6,4 @@ Gerber2Prn/Release
 *.gbr
 Gerber2Prn/*.prn
 Gerber2Prn/*.gbr
+Gerber2Prn/gbs
