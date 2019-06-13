@@ -14,9 +14,10 @@
 #else
 #include "getopt.h"
 #endif
-#ifdef __linux__
+//libtiff
+//#ifdef __linux__
 #include "tiffio.h"
-#endif
+//#endif
 #include <stdarg.h>
 #include <string.h>
 
@@ -495,8 +496,8 @@ int main (int argc, char **argv)
 	}
 
 	// Initialise TIFF with the libtiff library
-	//
-#ifdef __linux__
+	//libtiff
+//#ifdef __linux__
 	TIFF* tif = TIFFOpen(outputFilename.c_str(), "w");
     if	(tif==NULL)
     {
@@ -513,7 +514,7 @@ int main (int argc, char **argv)
     TIFFSetField(tif, TIFFTAG_YRESOLUTION, imageDPI);
     TIFFSetField(tif, TIFFTAG_XRESOLUTION, imageDPI);
     TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, rowsPerStrip);
-#endif
+//#endif
     
 	//
     // Calculate size and allocate buffer for drawing. The image will be rendered sequential blocks of
@@ -629,9 +630,10 @@ int main (int argc, char **argv)
 	    		cout << "Rendering "<< percentComplete <<"%  \r"<<flush;
 	    	last = percentComplete;
 		}
-#ifdef __linux__
+//libtiff
+//#ifdef __linux__
     	TIFFWriteEncodedStrip(tif, stripCounter, bitmap, bytesPerScanline*lines);
-#endif
+//#endif
         //printf("bytesPerScanline:%d lines:%d stripCounter:%d\n", bytesPerScanline, lines, stripCounter);
 		stripCounter++;
         fwrite(bitmap, 1, bytesPerScanline*lines, fp);
@@ -649,9 +651,10 @@ int main (int argc, char **argv)
         }
 
     }
-#ifdef __linux__
+	//libtiff
+//#ifdef __linux__
     TIFFClose(tif);
-#endif
+//#endif
     fclose(fp);
 
     if (optVerbose)    	cout << "\n";
