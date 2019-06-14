@@ -595,7 +595,7 @@ int main (int argc, char **argv)
 					it = activePolys.erase(it);
 					continue;
 				}
-				int sliCount;
+				int sliCount = 0;
 				int *sliTable;
 				it->polygon->getNextLineX1X2Pairs( sliTable, sliCount);
 
@@ -607,7 +607,7 @@ int main (int argc, char **argv)
 
 				for (int i=0; i < sliCount; i+=2)
 				{
-//					printf(" %d~%d ",sliTable[i], sliTable[i+1] ); fflush(stdout);
+					//printf(" sliTable[%d]:%d~sliTable[%d]:%d \n",i, sliTable[i], i+1, sliTable[i+1] ); fflush(stdout);
 					horizontalLine( xOffset + it->polygon->pixelOffsetX + sliTable[i], \
 									xOffset + it->polygon->pixelOffsetX + sliTable[i+1], \
 									bufferLine, pol  );

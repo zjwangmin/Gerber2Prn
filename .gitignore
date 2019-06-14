@@ -8,3 +8,5 @@ Gerber2Prn/*.prn
 Gerber2Prn/*.gbr
 .vs/
 Gerber2Prn/*.tiff
+Gerber2Prn/gbs
+Gerber2Prn/gts

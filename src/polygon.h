@@ -144,6 +144,7 @@ class Polygon
 private:
 	int * nextInTable;
 	int * nextInCount;
+	int count;
 
 public:
 	VertexData * vdata;
@@ -165,6 +166,7 @@ public:
 				,offset(0,0)
 				,nextInCount(0)
 				,nextInTable(0)
+				,count(0)
 				,vdata(new VertexData)
 	{ }
 
@@ -175,6 +177,15 @@ public:
 	 */
 	void getNextLineX1X2Pairs(int * &sliTable, int &sliCount )
 	{
+		// bug fixed by MinWang
+		if (vdata->linesInCounts.size() == 0) {
+			sliCount = 0;
+			return;
+		}
+		if (count == vdata->linesInCounts.size()) {
+			sliCount = 0;
+			return;
+		}
 		 // Resets the scan line counters to zero  on first call to this function
 		if (nextInCount == 0)
 		{
@@ -186,6 +197,7 @@ public:
 		sliTable = nextInTable;
 		nextInTable += sliCount;
 		nextInCount++;
+		count++;
 	}
 };
 

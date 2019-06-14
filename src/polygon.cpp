@@ -150,6 +150,8 @@ void VertexData::initialise()
 	// Determine edges that have a bottom vertex which has higher y value than either of it's neighbouring vertices.
 	// Such edges are flagged includeBottom, so in the scan line loop, the edge is not removed from the active list
 	// until the very bottom of the edge is scanned. This prevents vertices and bottom horizontal lines being missed in the plot.
+	if (edges.size() == 0) // bug fixed by MinWang
+		return;
 	list<Edge>::iterator pit = edges.end();
 	pit--;
 	for ( list<Edge>::iterator it = edges.begin(); it != edges.end(); it++)
@@ -165,6 +167,7 @@ void VertexData::initialise()
 
 	// Special case with  < 1 pixel high polygon that is assumed to be a single horizontal line.
 	// Action: A single x1 x2 pair for horizontal line from polygon's minx to maxx at where y coordinate is at miny = maxy
+	//小于1像素的多边形 假设为直线
 	if (pixelHeigth == 0)
 	{
 		linesInCounts.push_back(2);
@@ -189,7 +192,7 @@ void VertexData::initialise()
 		{
 			active.push_back( &(*currentEdge)  );
 			count++;	
-			if (count == edges.size())
+			if (count == edges.size()) //bug fixed by MinWang
 				break;
 			currentEdge++;
 		}
@@ -206,6 +209,8 @@ void VertexData::initialise()
 			}
 			it++;
 		}
+		if (active.size() == 0) // bug fixed by MinWang
+			return;
 		//printf(" y(%3f)  ", y);
 		for (list<Edge *>::iterator it = active.begin(); it != active.end(); it++)
 		{
