@@ -161,6 +161,7 @@ public:
 	{
 		return pixelMinY < rhs.pixelMinY;
 	}
+
 	Polygon () : polarity(DARK) // default to a dark polarity
 				,offset(0,0)
 				,nextInCount(0)

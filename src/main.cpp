@@ -14,12 +14,15 @@
 #else
 #include "getopt.h"
 #endif
-#ifdef __linux__
+//libtiff
+//#ifdef __linux__
 #include "tiffio.h"
-#endif
+//#endif
 #include <stdarg.h>
 #include <string.h>
 #include "pthread.h"
+#include <signal.h>
+#include <errno.h>
 
 using namespace std;
 
@@ -177,11 +180,13 @@ void horizontalLine( int x1, int x2, unsigned char *buffer, Polarity_t polarity)
 list<Polygon> globalPolygons;	// Contains polygons created by the all gerbers.
 pthread_mutex_t g_mutex;
 FILE * fp = NULL;
-#ifdef __linux__
+//libtiff
+//#ifdef __linux__
 	TIFF* tif = NULL;
-#endif
+//#endif
 
 struct thread_params {
+	bool exitFlag;
 	bool isPolarityDark;
 	int ystart;
 	int rowPerStrip;
@@ -195,6 +200,9 @@ struct thread_params {
 	int imageHeight;
 	int stripCounter;
 };
+
+//list<PolygonReference >  g_activePolys;
+pthread_mutex_t g_mutex_atPoly;
 
 void * handlePoly(void* Param)
 {
@@ -213,10 +221,11 @@ void * handlePoly(void* Param)
 	int imageHeight = param->imageHeight;
 	int stripCounter = param->stripCounter;
 
-	/*std::list<Polygon> poly;
+	std::list<Polygon> poly;
 	pthread_mutex_lock(&g_mutex);
 	std::copy(globalPolygons.begin(), globalPolygons.end(), std::back_inserter(poly));
-	pthread_mutex_unlock(&g_mutex);*/
+	printf("globalPolygons size:%d poly size:%d\n", globalPolygons.size(), poly.size());
+	pthread_mutex_unlock(&g_mutex);
 
 	list<PolygonReference >  activePolys;
 	int bitmapBytes = bytesPerScanline * rowsPerStrip;
@@ -225,16 +234,10 @@ void * handlePoly(void* Param)
 	else				memset(bitmap, 0xff, bitmapBytes);
 	unsigned char * bufferLine = bitmap;
 
-	/*pthread_mutex_lock(&g_mutex);
-	printf("globalPolygons size:%d poly size:%d\n", globalPolygons.size(), poly.size());
-	pthread_mutex_unlock(&g_mutex);*/
-
+	//pthread_mutex_lock(&g_mutex_atPoly);
 	//jump to ystart position
-	/*Polygon temp;
-	temp.pixelMinY = ystart;
-	list<Polygon>::iterator polyIterator = std::find(globalPolygons.begin(), globalPolygons.end(), temp);*/
-	list<Polygon>::iterator polyIterator = globalPolygons.begin();
-	while (polyIterator != globalPolygons.end()) {
+	list<Polygon>::iterator polyIterator = poly.begin();
+	while (polyIterator != poly.end()) {
 		if ((ystart <= (polyIterator->pixelMinY)))
 			break;
 		polyIterator++;
@@ -247,33 +250,37 @@ void * handlePoly(void* Param)
 	// All polygon are sorted in the list globalPolygons. Iterating each polygon for raster data will guarantee no missing lines.
 	for (int y = ystart; (y - ystart) < rowsPerStrip && (y <= maxy); y++, bufferLine += bytesPerScanline)
 	{
-		while (polyIterator != globalPolygons.end())
+		/*list<Polygon>::iterator polyIterator = poly.begin();*/
+		while (polyIterator != poly.end())
 		{
 			if (y == (polyIterator->pixelMinY)) {
 				activePolys.push_back(PolygonReference());
 				activePolys.back().polygon = &(*polyIterator);
-				activePolys.sort();
-				printf("added poly %d (y=%d)\n", activePolys.back().polygon->number, y);
+				printf("added poly number %d (y=%d) indx:%d\n", polyIterator->number, y, index);
 				polyIterator++;
 			}
 			else
 				break;
+			/*polyIterator++;*/
 		}
-		
-		printf(" activePolys size:%d\n", activePolys.size());
+
+		activePolys.sort();
+		if(activePolys.size()>0)
+			printf("last poly number %d (y=%d) indx:%d\n", activePolys.back().polygon->number, y, index);
+		//printf(" activePolys size:%d indx:%d\n", activePolys.size(), index);
 		for (list<PolygonReference>::iterator it = activePolys.begin(); it != activePolys.end();)
 		{
 			if (y > it->polygon->pixelMaxY)
 			{
-			//						printf("erased poly %d (y=%d)\n", activePolys.back().polygon->number, y);
+				//printf("erased poly %d (y=%d)\n", activePolys.back().polygon->number, y);
 				it = activePolys.erase(it);
 				continue;
 			}
-			int sliCount;
+			int sliCount = 0;
 			int *sliTable;
 			it->polygon->getNextLineX1X2Pairs(sliTable, sliCount);
 
-			//				printf("p %2d y:%d (x cnt %d) |",it->polygon->number, y, sliCount); fflush(stdout);
+			//printf("p %2d y:%d (x cnt %d) |",it->polygon->number, y, sliCount); fflush(stdout);
 
 			Polarity_t pol = it->polygon->polarity;
 			if ((pol == DARK) && !isPolarityDark) pol = CLEAR;
@@ -281,29 +288,66 @@ void * handlePoly(void* Param)
 
 			for (int i = 0; i < sliCount; i += 2)
 			{
-				//					printf(" %d~%d ",sliTable[i], sliTable[i+1] ); fflush(stdout);
+				//printf(" %d~%d ",sliTable[i], sliTable[i+1] ); fflush(stdout);
 				horizontalLine(xOffset + it->polygon->pixelOffsetX + sliTable[i], \
 					xOffset + it->polygon->pixelOffsetX + sliTable[i + 1], \
 					bufferLine, pol);
 
 			}
-					//		printf("\n");
+			//printf("\n");
 			it++;
 		}
 	}
+	//for (int y = ystart; (y - ystart) < rowsPerStrip && (y <= maxy); y++, bufferLine += bytesPerScanline)
+	//{
+	//	printf(" activePolys size:%d indx:%d\n", activePolys.size(), index);
+	//	for (list<PolygonReference>::iterator it = activePolys.begin(); it != activePolys.end();)
+	//	{
+	//		if (y > it->polygon->pixelMaxY)
+	//		{
+	//			//printf("erased poly %d (y=%d)\n", activePolys.back().polygon->number, y);
+	//			it = activePolys.erase(it);
+	//			continue;
+	//		}
+	//		
+	//		int sliCount = 0;
+	//		int *sliTable;
+	//		it->polygon->getNextLineX1X2Pairs(sliTable, sliCount);
 
+	//		//printf("p %2d y:%d (x cnt %d) |",it->polygon->number, y, sliCount); fflush(stdout);
+
+	//		Polarity_t pol = it->polygon->polarity;
+	//		if ((pol == DARK) && !isPolarityDark) pol = CLEAR;
+	//		if ((pol == CLEAR) && isPolarityDark) pol = DARK;
+
+	//		for (int i = 0; i < sliCount; i += 2)
+	//		{
+	//			//printf(" %d~%d ",sliTable[i], sliTable[i+1] ); fflush(stdout);
+	//			horizontalLine(xOffset + it->polygon->pixelOffsetX + sliTable[i], \
+	//				xOffset + it->polygon->pixelOffsetX + sliTable[i + 1], \
+	//				bufferLine, pol);
+
+	//		}
+	//		printf("\n");
+	//		it++;
+	//	}
+	//}
+	//pthread_mutex_unlock(&g_mutex_atPoly);
+
+	pthread_mutex_lock(&g_mutex);
 	unsigned lines = min(rowsPerStrip, imageHeight - rowsPerStrip * stripCounter);
 	//printf("%d preentry\n", index);
-	pthread_mutex_lock(&g_mutex);
+	
 	printf("%d entry bytesPerScanline:%d lines:%d\n", index, bytesPerScanline, lines);
 	fseek(fp, bitmapBytes*index + 48, 0);
 	fwrite(bitmap, 1, bytesPerScanline*lines, fp);
 	fflush(fp);
-#ifdef __linux__
-	if (index > 0)
-		memset(bitmap, 0x00, bytesPerScanline*lines);
+	//libtiff
+//#ifdef __linux__
+	/*if (index > 1)
+		memset(bitmap, 0x00, bytesPerScanline*lines);*/
 	TIFFWriteEncodedStrip(tif, stripCounter, bitmap, bytesPerScanline*lines);
-#endif
+//#endif
 	pthread_mutex_unlock(&g_mutex);
 
 	printf("%d leave\n", index);
@@ -311,7 +355,8 @@ void * handlePoly(void* Param)
 	if (bitmap) free(bitmap);
 
 	//printf("==time (sec):	%.2f\n", ((double)(clock() - temp_clock)) / CLOCKS_PER_SEC);
-	
+	param->exitFlag = true;
+
 	return 0;
 }
 
@@ -327,7 +372,7 @@ int main (int argc, char **argv)
 	bool  optInvertPolarity = false;
 	bool  optTestOnly = false;
 	int  optVerbose = 0;
-	unsigned rowsPerStrip = 128;
+	unsigned rowsPerStrip = 512;
 	bool  optShowArea = false;
 	bool  optQuiet = false;
 	double total_area_cmsq = 0;
@@ -555,6 +600,8 @@ int main (int argc, char **argv)
 	}
 
 	printf("globalPolygons size:%d, gerbers size:%d\n", globalPolygons.size(), gerbers.size());
+	globalPolygons.sort();
+
 //    for (int i=0; i < 100; i++)
 //    {
 //    	double radius = 50.0 * rand() / double(RAND_MAX);
@@ -645,7 +692,7 @@ int main (int argc, char **argv)
 
 	// Initialise TIFF with the libtiff library
 	//
-#ifdef __linux__
+//#ifdef __linux__
 	tif = TIFFOpen(outputFilename.c_str(), "w");
     if	(tif==NULL)
     {
@@ -662,7 +709,7 @@ int main (int argc, char **argv)
     TIFFSetField(tif, TIFFTAG_YRESOLUTION, imageDPI);
     TIFFSetField(tif, TIFFTAG_XRESOLUTION, imageDPI);
     TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, rowsPerStrip);
-#endif
+//#endif
     
 	//
     // Calculate size and allocate buffer for drawing. The image will be rendered sequential blocks of
@@ -715,12 +762,13 @@ int main (int argc, char **argv)
 	pthread_attr_t * attr = new pthread_attr_t[count];
 	thread_params * params = new thread_params[count];
 	pthread_mutex_init(&g_mutex, NULL);
+	pthread_mutex_init(&g_mutex_atPoly, NULL);
 
     for (int ystart = miny - yOffset, i = 0; ystart < ( int(imageHeight) + miny - yOffset); ystart += rowsPerStrip, i++)
     {
 		pthread_attr_init(&(attr[i]));
 		pthread_attr_setscope(&(attr[i]), PTHREAD_SCOPE_SYSTEM);
-		pthread_attr_setdetachstate(&(attr[i]), PTHREAD_CREATE_JOINABLE);
+		pthread_attr_setdetachstate(&(attr[i]), PTHREAD_CREATE_DETACHED/*PTHREAD_CREATE_JOINABLE*/);
 		params[i].ystart = ystart;
 		params[i].rowPerStrip = rowsPerStrip;
 		params[i].bytesPerScanline = bytesPerScanline;
@@ -733,8 +781,8 @@ int main (int argc, char **argv)
 		params[i].index = i;
 		params[i].imageHeight = imageHeight;
 		params[i].stripCounter = stripCounter;
+		params[i].exitFlag = false;
 		pthread_create(&(pid[i]), &(attr[i]), handlePoly, &(params[i]));
-		pthread_join(pid[i], NULL);
 
         unsigned lines = min (rowsPerStrip, imageHeight - rowsPerStrip * stripCounter);
         int percentComplete = (100*(stripCounter*rowsPerStrip + lines))/imageHeight;
@@ -749,9 +797,21 @@ int main (int argc, char **argv)
 		stripCounter++;
     }
 
+	bool flag = true;
+	while (flag) {
+		for (int i = 0; i < count; i++) {
+			if (params[i].exitFlag == false) {
+				flag = true;
+				break;
+			}
+			else
+				flag = false;
+		}
+	}
+
 	//joinable thread.
-	for(int i = 0; i < count; i++)
-		pthread_join(pid[i], NULL);
+	/*for(int i = 0; i < count; i++)
+		pthread_join(pid[i], NULL);*/
 
 	delete[] pid;
 	delete[] attr;
@@ -766,6 +826,7 @@ int main (int argc, char **argv)
 	delete attr;
 	delete params;*/
 	pthread_mutex_destroy(&g_mutex);
+	pthread_mutex_destroy(&g_mutex_atPoly);
 
     if (optVerbose)    	cout << "\n";
 
